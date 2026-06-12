@@ -19,59 +19,123 @@
   Version: 1.0  |  https://github.com/ZijiYu/codex-profiles
 ```
 
-CPX is a tiny terminal tool for switching Codex Desktop profiles fast.
+CPX is a tiny terminal tool for switching Codex profiles, accounts, and API setups fast.
 
-It keeps saved profiles in `~/.codex-profiles`, then copies the selected one into `~/.codex`, which is the config directory Codex Desktop actually reads.
+It solves a practical problem: many Codex users do not have just one account or one configuration.
+
+For example:
+
+```text
+personal  -> your ChatGPT login
+work      -> company API key
+proxy     -> custom base_url
+test      -> temporary model or parameter experiments
+```
+
+Manually editing `~/.codex/config.toml`, swapping `auth.json`, changing environment variables, or replacing API settings by hand gets messy quickly. It also makes it easy to mix personal accounts with work credentials.
+
+CPX keeps each Codex setup as an independent profile. When you switch, CPX copies that profile into the active `~/.codex` directory, which is the directory Codex Desktop actually reads.
+
+Use it like this:
+
+```bash
+cpx use personal
+cpx use work
+cpx use proxy
+```
+
+After switching, restart Codex so it reloads the active config.
+
+No database. No daemon. No background service. CPX only manages local config files so multi-account, multi-API, and multi-environment Codex usage stays clean.
 
 ## Why
 
-Use it when you want one Codex setup for personal ChatGPT auth and another for API-key based work.
+CPX is useful if:
 
-```text
-personal -> auth login
-work     -> OPENAI_API_KEY
+- You have both a ChatGPT login and an API key.
+- You want separate Codex configs for personal and work projects.
+- You often switch between different `base_url`, model, or provider settings.
+- You do not want to edit `~/.codex/config.toml` by hand every time.
+- You want to avoid mixing personal auth, work API keys, and test settings.
+
+## How It Works
+
+CPX stores profiles in:
+
+```bash
+~/.codex-profiles
 ```
 
-No database. No daemon. No dependencies. Just small files and a terminal UI.
+The active Codex config still lives in:
+
+```bash
+~/.codex
+```
+
+When you run:
+
+```bash
+cpx use work
+```
+
+CPX switches the `work` profile into `~/.codex`, so Codex uses that setup.
+
+Think of it as a small Codex config switcher: keep many saved profiles, activate the one you need.
 
 ## Install
 
-From this checkout:
+From this project directory:
 
 ```bash
-cd /Users/ken/projects/discord/codex-profiles
+cd codex-profiles
 python3 -m pip install -e .
 ```
 
-Or run it directly:
+Confirm the command is available:
 
 ```bash
-/Users/ken/projects/discord/codex-profiles/bin/cpx
+cpx --help
+```
+
+Or run the script directly:
+
+```bash
+./bin/cpx
 ```
 
 ## Quick Start
 
-Create or refresh profiles from the current `~/.codex`:
+Create a profile from the current `~/.codex`:
 
 ```bash
 cpx init personal
+```
+
+If you have another setup, such as a work API key, create another profile:
+
+```bash
 cpx init work
 ```
 
-Login a profile with its own `CODEX_HOME`:
+Login a profile separately:
 
 ```bash
 cpx login personal
 ```
 
-Switch profiles:
+Switch to a profile:
 
 ```bash
 cpx use personal
+```
+
+Or:
+
+```bash
 cpx use work
 ```
 
-After switching, restart Codex Desktop so it reloads `~/.codex/config.toml`.
+After switching, restart Codex so it reloads `~/.codex/config.toml`.
 
 ## Terminal UI
 

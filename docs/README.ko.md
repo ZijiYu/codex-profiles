@@ -19,59 +19,123 @@
   Version: 1.0  |  https://github.com/ZijiYu/codex-profiles
 ```
 
-CPX는 Codex Desktop의 profile, 계정, 호출 방식을 빠르게 전환하기 위한 작은 터미널 도구입니다.
+CPX는 Codex 설정을 빠르게 전환하기 위한 작은 터미널 도구입니다.
 
-여러 profile을 `~/.codex-profiles`에 저장하고, 선택한 profile을 `~/.codex`로 복사합니다. `~/.codex`는 Codex Desktop이 실제로 설정을 읽는 디렉터리입니다.
+많은 Codex 사용자는 계정이나 설정을 하나만 쓰지 않습니다.
+
+예를 들면:
+
+```text
+personal  -> 개인 ChatGPT 계정으로 로그인
+work      -> 회사 API key
+proxy     -> 커스텀 base_url
+test      -> 다른 모델이나 파라미터 임시 테스트
+```
+
+매번 `~/.codex/config.toml`을 직접 수정하거나, `auth.json`, 환경 변수, API 설정을 바꾸다 보면 쉽게 헷갈립니다. 개인 계정과 업무 설정이 섞일 수도 있습니다.
+
+CPX의 방식은 단순합니다. 각 Codex 설정을 독립적인 profile로 저장하고, 필요할 때 선택한 profile을 현재 Codex가 사용하는 `~/.codex` 디렉터리로 전환합니다.
+
+다음처럼 사용할 수 있습니다:
+
+```bash
+cpx use personal
+cpx use work
+cpx use proxy
+```
+
+전환 후에는 Codex를 재시작해서 설정을 다시 읽게 하면 됩니다.
+
+CPX는 데이터베이스를 사용하지 않고, 백그라운드에 상주하지도 않습니다. 로컬 설정 파일만 관리해서 여러 계정, 여러 API, 여러 환경을 더 깔끔하게 사용할 수 있게 합니다.
 
 ## Why
 
-개인용 ChatGPT auth 로그인과 업무용 API key 설정을 분리하고 싶을 때 유용합니다.
+다음과 같은 경우 CPX가 유용합니다:
 
-```text
-personal -> auth login
-work     -> OPENAI_API_KEY
+- ChatGPT 계정과 API key를 모두 가지고 있다.
+- 개인 프로젝트와 업무 프로젝트의 Codex 설정을 분리하고 싶다.
+- 서로 다른 `base_url`, 모델, provider를 자주 전환한다.
+- 매번 `~/.codex/config.toml`을 직접 편집하고 싶지 않다.
+- 개인 auth, 업무 API key, 테스트 설정이 섞이는 것을 피하고 싶다.
+
+## How It Works
+
+CPX는 profile을 다음 위치에 저장합니다:
+
+```bash
+~/.codex-profiles
 ```
 
-데이터베이스도 없고, 데몬도 없고, 외부 의존성도 없습니다. 작은 파일들과 터미널 UI만 있습니다.
+현재 Codex가 사용하는 설정은 계속 다음 위치에 있습니다:
+
+```bash
+~/.codex
+```
+
+다음을 실행하면:
+
+```bash
+cpx use work
+```
+
+CPX는 `work` profile을 `~/.codex`로 전환하고, Codex가 해당 설정을 사용하게 합니다.
+
+여러 설정을 저장해 두고 필요한 설정만 활성화하는 작은 Codex 설정 전환기로 이해하면 됩니다.
 
 ## Install
 
-현재 checkout에서 설치:
+현재 프로젝트 디렉터리에서 설치:
 
 ```bash
-cd /Users/ken/projects/discord/codex-profiles
+cd codex-profiles
 python3 -m pip install -e .
 ```
 
-또는 직접 실행:
+명령이 사용 가능한지 확인:
 
 ```bash
-/Users/ken/projects/discord/codex-profiles/bin/cpx
+cpx --help
+```
+
+또는 스크립트를 직접 실행:
+
+```bash
+./bin/cpx
 ```
 
 ## Quick Start
 
-현재 `~/.codex`에서 profile을 만들거나 갱신합니다:
+먼저 현재 `~/.codex`에서 profile을 만듭니다:
 
 ```bash
 cpx init personal
+```
+
+업무 API key 같은 다른 설정이 있다면 하나 더 만듭니다:
+
+```bash
 cpx init work
 ```
 
-독립적인 `CODEX_HOME`으로 profile에 로그인합니다:
+profile별로 Codex에 로그인합니다:
 
 ```bash
 cpx login personal
 ```
 
-profile 전환:
+profile로 전환:
 
 ```bash
 cpx use personal
+```
+
+또는:
+
+```bash
 cpx use work
 ```
 
-전환 후에는 Codex Desktop을 재시작해서 `~/.codex/config.toml`을 다시 읽게 하세요.
+전환 후에는 Codex를 재시작해서 `~/.codex/config.toml`을 다시 읽게 하세요.
 
 ## Terminal UI
 

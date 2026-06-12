@@ -19,59 +19,123 @@
   Version: 1.0  |  https://github.com/ZijiYu/codex-profiles
 ```
 
-CPX 是一个很小的终端工具，用来快速切换 Codex Desktop 的 profile、账号和调用方式。
+CPX 是一个用来快速切换 Codex 配置的小工具。
 
-它会把多套 profile 保存到 `~/.codex-profiles`，切换时再把选中的 profile 复制到 `~/.codex`。`~/.codex` 是 Codex Desktop 实际读取配置的目录。
+它主要解决一个很实际的问题：很多人使用 Codex 时，并不是只有一种账号和配置。
+
+比如：
+
+```text
+personal  -> 用自己的 ChatGPT 账号登录
+work      -> 用公司的 API key
+proxy     -> 使用自定义 base_url
+test      -> 临时测试另一套模型或参数
+```
+
+如果每次都手动改 `~/.codex/config.toml`，或者来回替换 `auth.json`、环境变量和 API 配置，很容易乱，也很容易把个人账号和工作配置混在一起。
+
+CPX 的做法很简单：把每一套 Codex 配置保存成一个独立的 profile。需要切换时，直接选择对应 profile，CPX 会把它切换到当前 Codex 使用的 `~/.codex` 目录。
+
+也就是说，你可以像这样使用：
+
+```bash
+cpx use personal
+cpx use work
+cpx use proxy
+```
+
+切换完成后，重启 Codex，让它重新读取配置即可。
+
+CPX 不依赖数据库，也不会常驻后台。它只是帮你管理几套本地配置文件，让“多账号、多 API、多环境”的 Codex 使用方式变得更干净。
 
 ## 为什么需要它
 
-当你想让一套 Codex 配置用于个人 ChatGPT 登录，另一套配置用于工作 API key 时，CPX 会很方便。
+如果你有下面这些情况，CPX 会比较有用：
 
-```text
-personal -> auth login
-work     -> OPENAI_API_KEY
+- 你有一个 ChatGPT 账号，同时也有 API key；
+- 你想把个人项目和工作项目的 Codex 配置分开；
+- 你经常需要在不同 `base_url`、模型、provider 之间切换；
+- 你不想每次都手动编辑 `~/.codex/config.toml`；
+- 你担心把个人账号、工作 API key 或测试配置混在一起。
+
+## 它怎么工作
+
+CPX 会把 profile 保存在：
+
+```bash
+~/.codex-profiles
 ```
 
-没有数据库。没有守护进程。没有第三方依赖。只有一些小文件和一个终端 UI。
+当前正在使用的 Codex 配置仍然放在：
+
+```bash
+~/.codex
+```
+
+当你运行：
+
+```bash
+cpx use work
+```
+
+CPX 会把 `work` 这套 profile 切换到 `~/.codex`，让 Codex 使用这套配置。
+
+你可以把它理解成一个 Codex 配置切换器：平时保存多套配置，需要哪套就切到哪套。
 
 ## 安装
 
-从当前 checkout 安装：
+从当前项目目录安装：
 
 ```bash
-cd /Users/ken/projects/discord/codex-profiles
+cd codex-profiles
 python3 -m pip install -e .
 ```
 
-也可以直接运行：
+安装后确认命令可用：
 
 ```bash
-/Users/ken/projects/discord/codex-profiles/bin/cpx
+cpx --help
+```
+
+也可以直接运行项目里的脚本：
+
+```bash
+./bin/cpx
 ```
 
 ## 快速开始
 
-从当前 `~/.codex` 创建或刷新 profile：
+先从当前 `~/.codex` 创建一个 profile：
 
 ```bash
 cpx init personal
+```
+
+如果你还有另一套配置，比如工作 API key，可以再创建一个：
+
+```bash
 cpx init work
 ```
 
-使用独立的 `CODEX_HOME` 登录某个 profile：
+给某个 profile 单独登录 Codex：
 
 ```bash
 cpx login personal
 ```
 
-切换 profile：
+切换到某个 profile：
 
 ```bash
 cpx use personal
+```
+
+或者：
+
+```bash
 cpx use work
 ```
 
-切换后请重启 Codex Desktop，让它重新读取 `~/.codex/config.toml`。
+切换后请重启 Codex，让它重新读取 `~/.codex/config.toml`。
 
 ## 终端 UI
 
